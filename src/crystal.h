@@ -48,7 +48,7 @@ bool comp_norm(const GSL::Vector& a, const GSL::Vector& b)
 }
 
 template<size_t dim>
-bool comp_norm_site(Site_t<dim>& a, Site_t<dim>& b)
+bool comp_norm_site(const Site_t<dim>& a, const Site_t<dim>& b)
 {
 	const GSL::Vector va = a.pos(), vb = b.pos();
 	return comp_norm(va, vb);
