@@ -170,10 +170,11 @@ std::vector<Neighbours<2>> Crystal_t<2>::calc_nearest_neighbours(const size_t n_
 	GSL::Vector ri, rj, R(2), zerov(2);
 	GSL::Matrix a = lat_m.lat();
 	size_t j = 0; 	
+	double a0, a1;
 	for(size_t i = 0; i < sites_m.size(); i++){
 		ri = sites_m[i].pos();
-		for(size_t step_h = 0; step_h < n_steps; step_h++){
-			for(size_t step_v = 0; step_v < n_steps; step_v++){
+		for(size_t step_h = 0; step_h < n_steps + 1; step_h++){
+			for(size_t step_v = 0; step_v < n_steps + 1; step_v++){
 				if(step_h == 0 && step_v == 0){
 					continue;
 				}
@@ -184,8 +185,9 @@ std::vector<Neighbours<2>> Crystal_t<2>::calc_nearest_neighbours(const size_t n_
 				}else if(R_m.size() != 0){
 					j = ((i / size_m[0] + step_v) % size_m[1])*size_m[0] + 
 						(i + step_h) % size_m[0];
-					R  = ((i % size_m[0] + step_h) / size_m[0]) * a[0] + 
-					     ((i / size_m[0] + step_v) / size_m[1]) * a[1];
+					a0 = static_cast<double>((i % size_m[0] + step_h) / size_m[0]);
+					a1 = static_cast<double>((i / size_m[0] + step_v) / size_m[1]);
+					R  = a0 * a[0] + a1 * a[1];
 				}
 				rj = sites_m[j].pos();
 				res[i].push_back(Site_t<2>(j, rj + R - ri, size_m));
@@ -198,12 +200,14 @@ std::vector<Neighbours<2>> Crystal_t<2>::calc_nearest_neighbours(const size_t n_
 						j = ((i / size_m[0] + step_v) % size_m[1])*size_m[0];
 						if(i % size_m[0] < step_h){
 							j += (i + (size_m[0] - (step_h % size_m[0]))) % size_m[0];
-							R = ((step_h - i % size_m[0])/ size_m[0] + 1)*(-a[0]);
+							a0 = static_cast<double>((step_h - i % size_m[0])/ size_m[0] + 1);
+							R = a0*(-a[0]);
 						}else{
 							j +=  i % size_m[0] - step_h;
 							R.copy(zerov);
 						}
-						R += ((i / size_m[0] + step_v) / size_m[1])*a[1];
+						a1 = static_cast<double>((i / size_m[0] + step_v) / size_m[1]);
+						R += a1*a[1];
 					}
 					rj = sites_m[j].pos();
 					res[i].push_back(Site_t<2>(j, rj + R - ri, size_m));
@@ -216,13 +220,15 @@ std::vector<Neighbours<2>> Crystal_t<2>::calc_nearest_neighbours(const size_t n_
 					}else if(R_m.size() != 0){
 						if(i / size_m[0] < step_v){
 							j = (i/size_m[0] + (size_m[1] - (step_v % size_m[1])) % size_m[1]  )*size_m[0];
-							R = ((step_v - i/size_m[1])/ size_m[1] + 1)*(-a[1]);
+							a1 = static_cast<double>((step_v - i/size_m[1])/ size_m[1] + 1);
+							R = a1*(-a[1]);
 						}else{
 							j = (i/size_m[0] - step_v)*size_m[0];
 							R.copy(zerov);
 						}
 						j += (i + step_h) % size_m[0];
-						R  += ((i % size_m[0] + step_h) / size_m[0]) * a[0];
+						a0 = static_cast<double>((i % size_m[0] + step_h) / size_m[0]);
+						R  +=  a0 * a[0];
 					}
 					rj = sites_m[j].pos();
 					res[i].push_back(Site_t<2>(j, rj + R - ri, size_m));
@@ -235,14 +241,16 @@ std::vector<Neighbours<2>> Crystal_t<2>::calc_nearest_neighbours(const size_t n_
 					}else if(R_m.size() != 0){
 						if(i % size_m[0] < step_h){
 							j = (i + size_m[0] - (step_h % size_m[0])) % size_m[0];
-							R = ((step_h - i % size_m[0])/ size_m[0] + 1)*(-a[0]);
+							a0 = static_cast<double>((step_h - i % size_m[0])/ size_m[0] + 1);
+							R = a0*(-a[0]);
 						}else{
 							j = (i - step_h) % size_m[0];
 							R.copy(zerov);
 						}
 						if(i/size_m[0] < step_v){
 							j += (i/size_m[0] + (size_m[1] - (step_v % size_m[1])) % size_m[1]  )*size_m[0];
-							R += ((step_v -  i / size_m[0]) / size_m[1] + 1)*(-a[1]);
+							a1 = static_cast<double>((step_v -  i / size_m[0]) / size_m[1] + 1);
+							R += a1*(-a[1]);
 						}else{
 							j += (i/size_m[0] - step_v)*size_m[0];
 							R += zerov;

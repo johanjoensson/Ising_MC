@@ -18,7 +18,7 @@ class Ising_t{
 	private:
 		std::array<size_t, dim> size_m;
 		Crystal_t<dim> cr_m;
-		std::vector<int> field_m;
+		std::vector<int8_t> field_m;
 		std::vector<std::vector<Neighbours<dim>>> nn_shells_m;
 		std::vector<double> J_m;
 		double H_m;
@@ -36,12 +36,12 @@ class Ising_t{
 		void setup_field()
 		{
 			size_t length = calc_length();
-			field_m = std::vector<int>(length);
+			field_m = std::vector<int8_t>(length);
 			std::random_device rd;
 			std::mt19937 gen(rd());
-			std::uniform_int_distribution<int> dist(0,1);
+			std::uniform_int_distribution<int8_t> dist(0,1);
 			for(auto& val : field_m){
-				val = 2*dist(gen) - 1;
+				val = static_cast<int8_t>(2*dist(gen) - 1);
 			}
 		}
 
@@ -68,7 +68,9 @@ class Ising_t{
 					tmp_index -= coord[i-1]*offset;
 				}
 				positions[idx] = GSL::Vector(dim);
-				positions[idx].assign(coord.begin(), coord.end());
+				for(size_t i = 0; i < coord.size(); i++){
+					positions[idx][i] = static_cast<double>(coord[i]);
+				}
 			}
 			cr_m.add_sites(positions);
 		}
@@ -82,9 +84,9 @@ class Ising_t{
 			}
 		}
 
-		void setup_nearest_neighbour_shells()
+		void setup_nearest_neighbour_shells(const size_t n_steps = 1)
 		{
-			std::vector<Neighbours<dim>> nn = cr_m.calc_nearest_neighbours(3);
+			std::vector<Neighbours<dim>> nn = cr_m.calc_nearest_neighbours(n_steps);
 			nn_shells_m = cr_m.determine_nn_shells(nn);
 		}
 
@@ -115,12 +117,16 @@ class Ising_t{
 			setup_crystal();
 			setup_crystal_sites();
 			setup_crystal_lattice_vectors(periodic);
-			setup_nearest_neighbour_shells();
+			setup_nearest_neighbour_shells(1);
 		}
 
 		void set_interaction_parameters(const std::vector<double>& J)
 		{
 			J_m = J;
+			if(J_m.size() > 2){
+				std::cout << "Recalculating nearest neighbours to enable inclusion of (at least) " << J_m.size() << " nearest neighbour shells\n";
+				setup_nearest_neighbour_shells(J_m.size()/2);
+			}
 		}
 
 		void set_H(const double H){H_m = H;}
@@ -139,23 +145,30 @@ class Ising_t{
 
 			index = dist_i(gen);
 			e_site = site_energy(index);
-			field_m[index] *= -1;
-			e_trial = site_energy(index);
+			field_m[offset] = static_cast<int8_t>(-field_m[i*offset]);
+			e_trial = site_energy((index + i*offset) % length);
 
 			if( e_trial > e_site && dist_d(gen) > GSL::exp(-beta_m*(e_trial - e_site)).val){
-				field_m[index] *= -1;
+				field_m[index] = static_cast<int8_t>(-field_m[index]);
 			}
+
 		}
 
 		double total_energy()
 		{
-			double length = static_cast<double>(calc_length());
 			double res = 0;
 			for(size_t i = 0; i < field_m.size(); i++){
 				res += site_energy(i);
 			}
-			return res/length;
+			return res;
 		}
+
+		double averaeg_site_energy()
+		{
+			size_t n_sites = calc_length();
+			return total_energy()/static_cast<double>(n_sites);
+		}
+
 
 		double magnetization()
 		{
@@ -167,7 +180,10 @@ class Ising_t{
 			return static_cast<double>(tot_spin)/length;
 		}
 
-		std::vector<int>& field(){return field_m;}	
+		std::vector<int8_t>& field(){
+
+			return field_m;
+		}	
 };
 
 #endif // ISING_H
