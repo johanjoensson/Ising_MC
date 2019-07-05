@@ -3,6 +3,21 @@
 #include "GSLpp/vector.h"
 
 template<size_t dim>
+class Site_t;
+
+namespace std {
+	template<size_t dim>
+	struct hash<Site_t<dim>>{
+		hash() = default;
+		size_t operator()(Site_t<dim> &s) const
+		{
+			return GSL::Vector_hasher_t<double, gsl_vector, std::allocator<double>>()(s.pos()) ^
+				std::hash<size_t>()(s.index());
+		}
+	};
+}
+
+template<size_t dim>
 class Site_t{
 	private:
 		size_t index_m;
@@ -31,16 +46,5 @@ class Site_t{
 		GSL::Vector pos() const {return pos_m;}
 		void set_pos(const GSL::Vector& pos){pos_m = pos;}
 };
-
-namespace std {
-	template<size_t dim>
-	struct hash<Site_t<dim>>{
-		size_t operator()(Site_t<dim> &s) const
-		{
-			return std::hash<GSL::Vector>()(s.pos()) ^
-				std::hash<size_t>()(s.index());
-		}
-	};
-}
 
 #endif // SITE_H

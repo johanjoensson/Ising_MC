@@ -145,8 +145,8 @@ class Ising_t{
 
 			index = dist_i(gen);
 			e_site = site_energy(index);
-			field_m[offset] = static_cast<int8_t>(-field_m[i*offset]);
-			e_trial = site_energy((index + i*offset) % length);
+			field_m[index] = static_cast<int8_t>(-field_m[index]);
+			e_trial = site_energy(index);
 
 			if( e_trial > e_site && dist_d(gen) > GSL::exp(-beta_m*(e_trial - e_site)).val){
 				field_m[index] = static_cast<int8_t>(-field_m[index]);

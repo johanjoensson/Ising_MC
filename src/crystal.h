@@ -61,20 +61,6 @@ struct Vector_comp_norm{
 
 };
 
-namespace std {
-	template<>
-	struct hash<GSL::Vector>{
-		size_t operator()(const GSL::Vector &v) const
-		{
-			size_t res = v.size();
-			for(size_t i = 0; i < v.size(); i++){
-				res += std::hash<double>()(v[i]) ^ std::hash<size_t>()(i);
-			}
-			return res;
-		}
-	};
-}
-
 template<size_t dim>
 void Crystal_t<dim>::set_Rn(const double Rmax)
 {
@@ -92,7 +78,7 @@ void Crystal_t<dim>::set_Rn(const double Rmax)
 	}
 
 	// temporary vector for storing linear combinations of new and old vector
-	std::unordered_set<GSL::Vector> r_tmp;
+	std::unordered_set<GSL::Vector, GSL::Vector_hasher_t<double, gsl_vector, std::allocator<double>>> r_tmp;
 	for(size_t i = 0; i < dim; i++){
 		for(n[i] = -N[i]; n[i] <= N[i]; n[i]++){
 			// Add ni * ai to the list of vectors
@@ -125,7 +111,7 @@ void Crystal_t<dim>::set_Kn(const double Kmax)
 	}
 
 	// temporary vector for storing linear combinations of new and old vector
-	std::unordered_set<GSL::Vector> k_tmp;
+	std::unordered_set<GSL::Vector, GSL::Vector_hasher> k_tmp;
 	for(size_t i = 0; i < dim; i++){
 		for(n[i] = -N[i]; n[i] <= N[i]; n[i]++){
 			// Add ni * ai to the list of vectors

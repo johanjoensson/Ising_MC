@@ -173,7 +173,7 @@ int main()
 
 	size_t num_iterations = 10*width*height;
 	for(size_t it = 0; it < num_iterations; it++){
-		ising.update(1);
+		ising.update();
 		if(it % (num_iterations/10) == 0){
 			std::cout << "Iteration " << it << ", out of " << num_iterations <<"\n";
 			std::cout << "\tTotal energy = " << ising.total_energy() << "\n";
