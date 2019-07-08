@@ -162,21 +162,21 @@ int main()
 	e_handler.off();
 
 	size_t width = 500, height = 500;
-	Lattice_t<2> lat{{static_cast<double>(width), 0}, 
-		{0, static_cast<double>(height)}}; 
+	Lattice_t<2> lat{{{static_cast<double>(width), 0}, 
+		{0, static_cast<double>(height)}}}; 
 	Ising_t<2> ising(lat, {width, height}, true);
 	ising.set_beta(1);
 
 	// One interaction parameter per nearest neighbour shell to consider
-	ising.set_interaction_parameters({1.0});
+	ising.set_interaction_parameters({1.0, 0.0, -0.2});
 	ising.set_H(0);
 
-	size_t num_iterations = 10*width*height;
+	size_t num_iterations = 100*width*height;
 	for(size_t it = 0; it < num_iterations; it++){
 		ising.update();
 		if(it % (num_iterations/10) == 0){
 			std::cout << "Iteration " << it << ", out of " << num_iterations <<"\n";
-			std::cout << "\tTotal energy = " << ising.total_energy() << "\n";
+			std::cout << "\tAverage energy = " << ising.total_energy() << "\n";
 			std::cout << "\tMagnetization = " << ising.magnetization() << "\n";
 			std::cout << "\n";
 
@@ -185,7 +185,7 @@ int main()
 		}
 	}
 
-	std::cout << "Total energy = " << ising.total_energy() << "\n";
+	std::cout << "Average energy = " << ising.average_site_energy() << "\n";
 	std::cout << "Magnetization = " << ising.magnetization() << "\n";
 	bitmap_print(create_bitmap_data(ising.field(), {width, height}), "Final.bmp", {width, height});
 

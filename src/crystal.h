@@ -20,6 +20,7 @@ class Crystal_t {
 	std::vector<GSL::Vector> R_m, K_m;
 	std::array<size_t, dim> size_m;
 public:
+	Crystal_t():lat_m(), sites_m(), R_m(), K_m(), size_m(){}
 	Crystal_t(const Lattice_t<dim>& lat):lat_m(lat), sites_m(), R_m(), K_m(), size_m(){}
 	void add_sites(const std::vector<GSL::Vector>&);
 	void set_Rn(const double Rmax);
@@ -150,6 +151,12 @@ std::vector<Neighbours<dim>> Crystal_t<dim>::calc_nearest_neighbours()
 }
 
 template<>
+std::vector<Neighbours<3>> Crystal_t<3>::calc_nearest_neighbours(const size_t n_steps)
+{
+	return this->calc_nearest_neighbours();
+}
+
+template<>
 std::vector<Neighbours<2>> Crystal_t<2>::calc_nearest_neighbours(const size_t n_steps)
 {
 	std::vector<Neighbours<2>> res(sites_m.size());
@@ -263,7 +270,7 @@ std::vector<std::vector<Neighbours<dim>>> Crystal_t<dim>::determine_nn_shells(co
 	for(size_t site_idx = 0; site_idx < nn.size(); site_idx++){
 		tmp = nn[site_idx][0];
 		old_dist = tmp.pos(). template norm<double>();
-		res[site_idx] = std::vector<Neighbours<dim>>(1);
+		res[site_idx] = std::vector<Neighbours<dim>>(1, Neighbours<dim>());
 		shell_idx = 0;
 		for(size_t neighbour_idx = 0; neighbour_idx < nn[site_idx].size(); neighbour_idx++){
 			tmp = nn[site_idx][neighbour_idx];
@@ -272,7 +279,7 @@ std::vector<std::vector<Neighbours<dim>>> Crystal_t<dim>::determine_nn_shells(co
 				shell_idx++;
 				res[site_idx].push_back(Neighbours<dim>());
 			}
-			res[site_idx][shell_idx].push_back( nn[site_idx][neighbour_idx] );
+			res[site_idx][shell_idx].push_back( tmp );
 		}
 	}
 

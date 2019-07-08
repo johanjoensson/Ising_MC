@@ -96,7 +96,7 @@ class Ising_t{
 			int other_spins = 0;
 			// Loop over all interaction constants provided
 			for(size_t i = 0; i < J_m.size(); i++){
-				for(auto neighbour : nn_shells_m[index][i]){
+				for(const auto neighbour : nn_shells_m[index][i]){
 					other_spins += field_m[neighbour.index()];
 				}
 				energy += J_m[i]/2 * other_spins;
@@ -125,7 +125,7 @@ class Ising_t{
 			J_m = J;
 			if(J_m.size() > 2){
 				std::cout << "Recalculating nearest neighbours to enable inclusion of (at least) " << J_m.size() << " nearest neighbour shells\n";
-				setup_nearest_neighbour_shells(J_m.size()/2);
+				setup_nearest_neighbour_shells(J_m.size()/2 + 1);
 			}
 		}
 
@@ -163,7 +163,7 @@ class Ising_t{
 			return res;
 		}
 
-		double averaeg_site_energy()
+		double average_site_energy()
 		{
 			size_t n_sites = calc_length();
 			return total_energy()/static_cast<double>(n_sites);

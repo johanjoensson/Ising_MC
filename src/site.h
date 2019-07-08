@@ -40,9 +40,8 @@ class Site_t{
 			}
 		}
 
-		size_t index() {return index_m;}
-		std::array<size_t, dim> coord() {return coord_m;}
-		GSL::Vector& pos() {return pos_m;}
+		size_t index() const {return index_m;}
+		std::array<size_t, dim> coord() const {return coord_m;}
 		GSL::Vector pos() const {return pos_m;}
 		void set_pos(const GSL::Vector& pos){pos_m = pos;}
 };
