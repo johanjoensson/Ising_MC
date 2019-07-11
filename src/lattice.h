@@ -21,9 +21,9 @@ public:
     }
 
 
-    T scale() {return scale_m;}
-    M lat() {return scale_m*lat_m;}
-    M recip_lat() {return 1/scale_m*recip_lat_m;}
+    T scale() const {return scale_m;}
+    M lat() const {return scale_m*lat_m;}
+    M recip_lat() const {return 1/scale_m*recip_lat_m;}
 };
 
 #endif // LATTICE_H

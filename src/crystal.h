@@ -39,7 +39,7 @@ template<size_t dim>
 void Crystal_t<dim>::add_sites(const std::vector<GSL::Vector>& positions)
 {
 	for(size_t i = 0; i < positions.size(); i++){
-		sites_m.push_back(Site_t<dim>(i, positions[i], size_m));
+		sites_m.push_back(Site_t<dim>(i, 1./lat_m.scale() * lat_m.lat() *positions[i], size_m));
 	}
 }
 
